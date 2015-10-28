@@ -71,7 +71,7 @@ class StackCats():
         self.curr_stack.swallow_zeroes()
 
         if self.debug:
-            print(self.stack_tape)
+            print(instruction, self.stack_tape)
 
     def execute_inst(self, instruction, first_half):        
         if instruction == "(":

@@ -30,12 +30,32 @@ class TestStackCats(unittest.TestCase):
                       ">r>>>>>>>>>>>>>27<101<801<801<111<44<23<78<111<411<801<001<33<<31>",
                       "Hello, World!")
 
-    def test_drop_first_three(self):
-        code = "]]]#[>[[[<r<;>r>]]]<]#[[["
+    def test_drop_first_n(self):
+        code = "]]#[>[[<r<;>r>]]<]#[[" # n = 2
+
+        self.run_test((code, "abcde"), "cde")
+        self.run_test((code, "123456"), "3456")
+        self.run_test((code, "ABCDEFGHI"), "CDEFGHI")
+        
+        code = "]]]#[>[[[<r<;>r>]]]<]#[[[" # n = 3
 
         self.run_test((code, "abcde"), "de")
         self.run_test((code, "123456"), "456")
         self.run_test((code, "ABCDEFGHI"), "DEFGHI")
+
+    def test_copy_nth(self):
+        code = "]]:[>[[<<]>:<[>>]]<]:[[" # n = 2
+
+        self.run_test((code, "abcde"), "cabcde")
+        self.run_test((code, "123456"), "3123456")
+        self.run_test((code, "ABCDEFGHI"), "CABCDEFGHI")
+        
+        code = "]]]:[>[[[<<]>:<[>>]]]<]:[[[" # n = 3
+
+        self.run_test((code, "abcde"), "dabcde")
+        self.run_test((code, "123456"), "4123456")
+        self.run_test((code, "ABCDEFGHI"), "DABCDEFGHI")
+
 
     def run_test(self, prog, output):
         if isinstance(prog, tuple):
