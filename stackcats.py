@@ -109,6 +109,16 @@ class StackCats():
                 elem = self.memory_stack.pop()
                 self.push(elem)
 
+        elif "0" <= instruction <= "9":
+            if first_half:
+                elem = self.pop()
+                n = int(instruction)
+                self.push(10*elem + n)
+            else:
+                elem = self.pop()
+                self.push(elem//10)
+                
+
     def pop(self):
         return self.curr_stack.pop()
 
