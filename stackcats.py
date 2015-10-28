@@ -137,6 +137,12 @@ class StackCats():
             else:
                 self.pop()
 
+        elif instruction == "#":
+            if first_half:
+                self.push(self.len())
+            else:
+                self.pop()
+
         elif instruction in "lr":
             mul = 1 if (instruction == "r") else -1
             
