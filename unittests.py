@@ -8,6 +8,21 @@ class TestStackCats(unittest.TestCase):
     def setUp(self):
         sys.stdout = io.StringIO()
 
+    def test_input(self):
+        self.run_test(("1", "\n"), "e")
+
+    def test_first_byte(self):
+        code = "[r;r]"
+        
+        self.run_test((code, "abcde"), "a")
+        self.run_test((code, "123456"), "1")
+
+    def test_last_byte(self):
+        code = "r1;1r"
+        
+        self.run_test((code, "abcde"), "e")
+        self.run_test((code, "123456"), "6")
+
     def test_HW(self):
         self.run_test("<13>>33>100>108>114>111>87>32>44>111>108>108>101>72<<<<<<<<<<<<<r<;"
                       ">r>>>>>>>>>>>>>27<101<801<801<111<44<23<78<111<411<801<001<33<<31>",
