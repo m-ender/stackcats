@@ -64,7 +64,7 @@ class StackCats():
             self.ip += 1
 
         while self.curr_stack:
-            sys.stdout.write(chr(self.pop()))
+            sys.stdout.write(chr(self.pop() % 256))
 
     def interpret(self, instruction, first_half):
         self.execute_inst(instruction, first_half)
@@ -136,12 +136,33 @@ class StackCats():
                 self.push(0)
             else:
                 self.pop()
+
+        elif instruction == "r":
+            if first_half:
+                self.memory_stack.push(self.len())
+
+                while self.curr_stack:
+                    self.stack_tape[self.stack_num + self.len()].push(self.pop())
+
+            else:
+                length = self.memory_stack.pop()
+
+                if length >= 0:
+                    stack_offsets = range(1, length+1)
+                else:
+                    stack_offsets = range(-1, length-1, -1)
+
+                for n in stack_offsets:
+                    self.push(self.stack_tape[self.stack_num + n].pop())
                 
     def pop(self):
         return self.curr_stack.pop()
 
     def push(self, elem):
         self.curr_stack.push(elem)
+
+    def len(self):
+        return len(self.curr_stack)
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
