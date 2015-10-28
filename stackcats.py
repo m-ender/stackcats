@@ -25,12 +25,16 @@ class BottomlessStack():
         while self.stack and self.stack[0] == 0:
             self.stack = self.stack[1:]
 
+    def __len__(self):
+        return len(self.stack)
+
     def __repr__(self):
         return repr(self.stack)
 
 class StackCats():
-    def __init__(self, code):
+    def __init__(self, code, debug=False):
         self.code = code
+        self.debug = debug
 
         # Check code validity
         validity_dict = dict(zip("()[]{}<>\\/", ")(][}{></\\"))
@@ -44,7 +48,8 @@ class StackCats():
         self.stack_tape = defaultdict(BottomlessStack)
 
         self.stack_num = 0
-        self.curr_stack = self.stack_tape[self.stack_num] = BottomlessStack(map(ord, input_))
+        self.stack_tape[self.stack_num] = BottomlessStack(map(ord, input_[::-1]))
+        self.curr_stack = self.stack_tape[self.stack_num]
 
         self.memory_stack = BottomlessStack()
         
@@ -54,11 +59,15 @@ class StackCats():
             self.interpret(self.code[self.ip], self.ip < (len(self.code)+1)//2)
             self.ip += 1
 
+        while self.curr_stack:
+            sys.stdout.write(chr(self.pop()))
+
     def interpret(self, instruction, first_half):
         self.execute_inst(instruction, first_half)
         self.curr_stack.swallow_zeroes()
 
-        print(self.stack_tape) # For debugging
+        if self.debug:
+            print(self.stack_tape)
 
     def execute_inst(self, instruction, first_half):        
         if instruction == "(":
@@ -118,7 +127,6 @@ class StackCats():
                 elem = self.pop()
                 self.push(elem//10)
                 
-
     def pop(self):
         return self.curr_stack.pop()
 
@@ -129,14 +137,18 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         sys.stderr.write("Usage: py -3 stackcats.py <code file> [input file]")
 
+    # TODO: Make better
     with open(sys.argv[1]) as codefile:
         code = codefile.read()
 
-    if len(sys.argv) == 2:
-        input_ = ""
-    else:
-        with open(sys.argv[2]) as inputfile:
+    debug = ("-d" in sys.argv[2:])
+
+    if len(sys.argv) > 2 and sys.argv[-1][0] != "-":
+        with open(sys.argv[-1]) as inputfile:
             input_ = inputfile.read()
 
-    interpreter = StackCats(code)
+    else:
+        input_ = ""
+
+    interpreter = StackCats(code, debug)
     interpreter.run(input_)
