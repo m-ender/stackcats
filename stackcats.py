@@ -137,12 +137,14 @@ class StackCats():
             else:
                 self.pop()
 
-        elif instruction == "r":
+        elif instruction in "lr":
+            mul = 1 if (instruction == "r") else -1
+            
             if first_half:
                 self.memory_stack.push(self.len())
 
                 while self.curr_stack:
-                    self.stack_tape[self.stack_num + self.len()].push(self.pop())
+                    self.stack_tape[self.stack_num + mul*self.len()].push(self.pop())
 
             else:
                 length = self.memory_stack.pop()
@@ -153,7 +155,7 @@ class StackCats():
                     stack_offsets = range(-1, length-1, -1)
 
                 for n in stack_offsets:
-                    self.push(self.stack_tape[self.stack_num + n].pop())
+                    self.push(self.stack_tape[self.stack_num + mul*n].pop())
                 
     def pop(self):
         return self.curr_stack.pop()
