@@ -37,12 +37,16 @@ class StackCats():
         self.debug = debug
 
         # Check code validity
-        validity_dict = dict(zip("()[]{}<>\\/", ")(][}{></\\"))
+        pairs = "([{<\/>}])"
+        validity_dict = dict(zip(pairs, pairs[::-1]))
 
         for i in range(len(code)//2):
             char = self.code[i]
             if validity_dict.get(char, char) != self.code[~i]:
                 raise InvalidCodeException()
+
+        # if len(code) % 2 == 1 and self.code[len(code)//2] in pairs:
+        #    raise InvalidCodeException()
 
     def run(self, input_=""):
         self.stack_tape = defaultdict(BottomlessStack)
@@ -126,6 +130,12 @@ class StackCats():
             else:
                 elem = self.pop()
                 self.push(elem//10)
+
+        elif instruction == "_":
+            if first_half:
+                self.push(0)
+            else:
+                self.pop()
                 
     def pop(self):
         return self.curr_stack.pop()
