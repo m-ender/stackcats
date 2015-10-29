@@ -1,8 +1,11 @@
+import argparse
 from collections import defaultdict
 import sys
 
+
 class InvalidCodeException(Exception):
     pass
+
 
 class BottomlessStack():
     def __init__(self, default=None):
@@ -31,10 +34,11 @@ class BottomlessStack():
     def __repr__(self):
         return repr(self.stack)
 
+
 class StackCats():
-    def __init__(self, code, debug=False):
+    def __init__(self, code, trace=False):
         self.code = code
-        self.debug = debug
+        self.trace = trace
 
         # Check code validity
         pairs = "([{<\/>}])"
@@ -43,10 +47,35 @@ class StackCats():
         for i in range(len(code)//2):
             char = self.code[i]
             if validity_dict.get(char, char) != self.code[~i]:
-                raise InvalidCodeException()
+                raise InvalidCodeException("Code must be convenient palindromic")
 
-        # if len(code) % 2 == 1 and self.code[len(code)//2] in pairs:
-        #    raise InvalidCodeException()
+        if len(code) % 2 == 1 and self.code[len(code)//2] in pairs:
+            raise InvalidCodeException("Centre char cannot be part of a char pair.")
+
+
+        self.loop_stack = [] # First half, [[ip, count]]
+        self.loop_count = None # Second half
+        self.loop_map = {}
+        index_stack = []
+
+        for i,c in enumerate(code):
+            if len(code) % 2 == 1 and i == len(code)//2 and index_stack:
+                raise InvalidCodeException("No loops through centre")
+
+            if c == "{":
+                index_stack.append(i)
+
+            elif c == "}":
+                if not index_stack:
+                    raise InvalidCodeException("Mismatched loops brackets")
+
+                start = index_stack.pop()
+                self.loop_map[start] = i
+                self.loop_map[i] = start - 1
+
+        if index_stack:
+            # Should not be reachable but just in case
+            raise InvalidCodeException("Mismatched loops brackets")
 
     def run(self, input_=""):
         self.stack_tape = defaultdict(BottomlessStack)
@@ -70,8 +99,12 @@ class StackCats():
         self.execute_inst(instruction, first_half)
         self.curr_stack.swallow_zeroes()
 
-        if self.debug:
-            print(instruction, self.stack_tape)
+        if self.trace:
+            stack_str = ["{}: {}".format(n, self.stack_tape[n])
+                         for n in sorted(self.stack_tape)]
+
+            print("{:4d}  {}  {{{}}}".format(self.ip, instruction,
+                      ", ".join(stack_str)), file=sys.stderr)
 
     def execute_inst(self, instruction, first_half):        
         if instruction == "(":
@@ -162,6 +195,34 @@ class StackCats():
 
                 for n in stack_offsets:
                     self.push(self.stack_tape[self.stack_num + mul*n].pop())
+
+        elif instruction == "{":
+            if first_half:
+                if not self.loop_stack or self.loop_stack[-1][0] != self.ip:
+                    self.loop_stack.append([self.ip, 0])
+                else:
+                    self.loop_stack[-1][1] += 1
+
+                cond = self.pop()
+                self.push(cond)
+
+                if cond <= 0:
+                    self.ip = self.loop_map[self.ip]
+                    self.memory_stack.push(self.loop_stack.pop()[1])
+
+            else:
+                if self.loop_count is None:
+                    self.loop_count = self.memory_stack.pop()
+                else:
+                    self.loop_count -= 1
+
+                if self.loop_count <= 0:
+                    self.ip = self.loop_map[self.ip]
+                    self.loop_count = None
+
+        elif instruction == "}":
+            self.ip = self.loop_map[self.ip]
+
                 
     def pop(self):
         return self.curr_stack.pop()
@@ -173,21 +234,24 @@ class StackCats():
         return len(self.curr_stack)
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        sys.stderr.write("Usage: py -3 stackcats.py <code file> [input file]")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t', '--trace', help="trace every step", action="store_true")
+    parser.add_argument("program_path", help="path to file containing program",
+                        type=str)
+    parser.add_argument("input_path", nargs='?', help="path to file containing input",
+                        type=str, default=None)
 
-    # TODO: Make better
-    with open(sys.argv[1]) as codefile:
+    args = parser.parse_args()
+
+    with open(args.program_path) as codefile:
         code = codefile.read()
 
-    debug = ("-d" in sys.argv[2:])
-
-    if len(sys.argv) > 2 and sys.argv[-1][0] != "-":
-        with open(sys.argv[-1]) as inputfile:
+    if args.input_path:
+        with open(args.input_path) as inputfile:
             input_ = inputfile.read()
 
     else:
         input_ = ""
 
-    interpreter = StackCats(code, debug)
+    interpreter = StackCats(code, args.trace)
     interpreter.run(input_)
