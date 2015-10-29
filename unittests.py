@@ -2,11 +2,19 @@ import io
 import sys
 import unittest
 
-from stackcats import StackCats
+from stackcats import StackCats, InvalidCodeException
 
 class TestStackCats(unittest.TestCase):
     def setUp(self):
         sys.stdout = io.StringIO()
+
+    def test_palindromic(self):
+        for code in ["((;;((", "(;:;;", ">:>"]:
+            with self.assertRaises(InvalidCodeException):
+                self.run_test(code)
+
+        for code in ["((;;))", "(;:;)", "<:>"]:
+            self.run_test(code)
 
     def test_input(self):
         self.run_test(("1", "\n"), "e")
@@ -56,8 +64,15 @@ class TestStackCats(unittest.TestCase):
         self.run_test((code, "123456"), "4123456")
         self.run_test((code, "ABCDEFGHI"), "DABCDEFGHI")
 
+    def test_loop_addition(self):
+        code = "<5{(>)<};{>(<)}5>" # n = 5
+        for c in " 0aA": self.run_test((code, c), chr(ord(c) + 5))
 
-    def run_test(self, prog, output):
+        code = "<27{(>)<};{>(<)}72>" # n = 27
+        for c in " 0aA": self.run_test((code, c), chr(ord(c) + 27))
+
+
+    def run_test(self, prog, output=""):
         if isinstance(prog, tuple):
             prog, input_ = prog
         else:

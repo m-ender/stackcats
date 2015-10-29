@@ -253,5 +253,9 @@ if __name__ == '__main__':
     else:
         input_ = ""
 
-    interpreter = StackCats(code, args.trace)
+    try:
+        interpreter = StackCats(code, args.trace)
+    except InvalidCodeException as e:
+        exit(e)
+
     interpreter.run(input_)
