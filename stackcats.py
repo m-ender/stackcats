@@ -99,15 +99,19 @@ class StackCats():
             sys.stdout.write(chr(self.pop() % 256))
 
     def interpret(self, instruction, first_half):
+        ip = self.ip
+
         self.execute_inst(instruction, first_half)
         self.curr_stack.swallow_zeroes()
 
         if self.trace:
-            stack_str = ["{}: {}".format(n, self.stack_tape[n])
-                         for n in sorted(self.stack_tape)]
+            stack_str = ["{}{}: {}".format(n, '*'*(self.stack_num == n),
+                           self.stack_tape[n]) for n in sorted(self.stack_tape)]
 
-            print("{:4d}  {}  {{{}}}".format(self.ip, instruction,
-                      ", ".join(stack_str)), file=sys.stderr)
+            is_centre = len(self.code)%2 == 1 and ip == len(self.code)//2
+
+            print("{:4d}{}  {}   {{{}}}".format(ip, " C"[is_centre],
+                    instruction, ", ".join(stack_str)), file=sys.stderr)
 
     def execute_inst(self, instruction, first_half):        
         if instruction == '-':
@@ -157,21 +161,19 @@ class StackCats():
                 self.push(elem)
 
         elif instruction == '{':
-            if self.ip in self.loop_conditions:
+            end = self.loop_map[self.ip]
+            
+            if end not in self.loop_conditions:
                 elem = self.pop()
                 self.push(elem)
-
-                if elem == self.loop_conditions[self.ip]:
-                    self.ip = self.loop_map[self.ip]
-
-            else:
-                elem = self.pop()
-                self.push(elem)
-
-                self.loop_conditions[self.ip] = elem
+                self.loop_conditions[end] = elem
 
         elif instruction == '}':
-            self.ip = self.loop_map[self.ip]
+            elem = self.pop()
+            self.push(elem)
+
+            if elem != self.loop_conditions[self.ip]:
+                self.ip = self.loop_map[self.ip]
                 
     def pop(self):
         return self.curr_stack.pop()
