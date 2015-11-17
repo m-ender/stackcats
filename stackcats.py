@@ -40,6 +40,8 @@ class StackCats():
         self.code = code
         self.trace = trace
 
+        # TODO: Error on invalid chars
+
         # Check code validity
         pairs = "([{<\/>}])"
         validity_dict = dict(zip(pairs, pairs[::-1]))
@@ -107,131 +109,57 @@ class StackCats():
                       ", ".join(stack_str)), file=sys.stderr)
 
     def execute_inst(self, instruction, first_half):        
-        if instruction == "(":
+        if instruction == '-':
             elem = self.pop()
-            self.push(elem - 1)
+            self.push(-elem)
         
-        elif instruction == ")":
+        elif instruction == '!':
             elem = self.pop()
-            self.push(elem + 1)
+            self.push(~elem)
 
-        elif instruction == "<":
+        elif instruction == '^':
+            elem2 = self.pop()
+            elem1 = self.pop()
+
+            self.push(elem1)
+            self.push(elem1 ^ elem2)
+
+        elif instruction == ':':
+            elem2 = self.pop()
+            elem1 = self.pop()
+
+            self.push(elem2)
+            self.push(elem1)
+
+        elif instruction == '<':
             self.stack_num -= 1
             self.curr_stack = self.stack_tape[self.stack_num]
 
-        elif instruction == ">":
+        elif instruction == '>':
             self.stack_num += 1   
             self.curr_stack = self.stack_tape[self.stack_num]
 
-        elif instruction == "[":
+        elif instruction == '[':
             if first_half:
                 elem = self.pop()
                 self.stack_tape[self.stack_num-1].push(elem)
             else:
                 elem = self.stack_tape[self.stack_num+1].pop()
-                self.push(elem)            
+                self.push(elem)
 
-        elif instruction == "]":
+        elif instruction == ']':
             if first_half:
                 elem = self.pop()
                 self.stack_tape[self.stack_num+1].push(elem)
             else:
                 elem = self.stack_tape[self.stack_num-1].pop()
                 self.push(elem)
-
-        elif instruction == ":":
-            if first_half:
-                elem = self.pop()
-                self.push(elem)
-                self.push(elem)
-            else:
-                self.pop()
-
-        elif instruction == ";":
-            if first_half:
-                elem = self.pop()
-                self.memory_stack.push(elem)
-            else:
-                elem = self.memory_stack.pop()
-                self.push(elem)
-
-        elif "0" <= instruction <= "9":
-            if first_half:
-                elem = self.pop()
-                n = int(instruction)
-                self.push(10*elem + n)
-            else:
-                elem = self.pop()
-                self.push(elem//10)
-
-        elif instruction == "_":
-            if first_half:
-                self.push(0)
-            else:
-                self.pop()
-
-        elif instruction == "#":
-            if first_half:
-                self.push(self.len())
-            else:
-                self.pop()
-
-        elif instruction in "lr":
-            mul = 1 if (instruction == "r") else -1
-            
-            if first_half:
-                self.memory_stack.push(self.len())
-
-                while self.curr_stack:
-                    self.stack_tape[self.stack_num + mul*self.len()].push(self.pop())
-
-            else:
-                length = self.memory_stack.pop()
-
-                if length >= 0:
-                    stack_offsets = range(1, length+1)
-                else:
-                    stack_offsets = range(-1, length-1, -1)
-
-                for n in stack_offsets:
-                    self.push(self.stack_tape[self.stack_num + mul*n].pop())
-
-        elif instruction == "{":
-            if first_half:
-                if not self.loop_stack or self.loop_stack[-1][0] != self.ip:
-                    self.loop_stack.append([self.ip, 0])
-                else:
-                    self.loop_stack[-1][1] += 1
-
-                cond = self.pop()
-                self.push(cond)
-
-                if cond <= 0:
-                    self.ip = self.loop_map[self.ip]
-                    self.memory_stack.push(self.loop_stack.pop()[1])
-
-            else:
-                if self.loop_count is None:
-                    self.loop_count = self.memory_stack.pop()
-                else:
-                    self.loop_count -= 1
-
-                if self.loop_count <= 0:
-                    self.ip = self.loop_map[self.ip]
-                    self.loop_count = None
-
-        elif instruction == "}":
-            self.ip = self.loop_map[self.ip]
-
                 
     def pop(self):
         return self.curr_stack.pop()
 
     def push(self, elem):
         self.curr_stack.push(elem)
-
-    def len(self):
-        return len(self.curr_stack)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
