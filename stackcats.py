@@ -36,15 +36,18 @@ class BottomlessStack():
 
 
 class StackCats():
-    def __init__(self, code, trace=False):
-        self.code = code
-        self.trace = trace
-
+    def __init__(self, code, trace=False, incomplete=False):
         # TODO: Error on invalid chars
 
         # Check code validity
         pairs = "([{<\/>}])"
         validity_dict = dict(zip(pairs, pairs[::-1]))
+
+        if incomplete:
+            code = code + "".join(validity_dict.get(c, c) for c in code[:-1][::-1])
+
+        self.code = code
+        self.trace = trace
 
         for i in range(len(code)//2):
             char = self.code[i]
@@ -182,6 +185,8 @@ class StackCats():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--trace', help="trace every step", action="store_true")
+    parser.add_argument('-i', '--incomplete', help="incomplete mode: source is expanded "
+                        "with last char at centre, before executing", action="store_true")
     parser.add_argument("program_path", help="path to file containing program",
                         type=str)
     parser.add_argument("input_path", nargs='?', help="path to file containing input",
@@ -200,7 +205,7 @@ if __name__ == '__main__':
         input_ = ""
 
     try:
-        interpreter = StackCats(code, args.trace)
+        interpreter = StackCats(code, args.trace, args.incomplete)
     except InvalidCodeException as e:
         exit(e)
 

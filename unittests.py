@@ -31,6 +31,12 @@ class TestStackCats(unittest.TestCase):
         self.run_test((code, "a"), "`")
         self.run_test((code, "`"), "a")
 
+    def test_increment_top(self):
+        code = "<!<{>}<!-<<{>}!{<}>>-!>{<}>!>"
+
+        self.run_test((code, "abc"), "bbc")
+        self.run_test((code, "x"), "y")
+
     def run_test(self, prog, output=None):
         if isinstance(prog, tuple):
             prog, input_ = prog
