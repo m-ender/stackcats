@@ -37,16 +37,25 @@ class TestStackCats(unittest.TestCase):
         self.run_test((code, "abc"), "bbc")
         self.run_test((code, "x"), "y")
 
-    def run_test(self, prog, output=None):
+    def test_hello_world(self):
+        code = ">>"
+
+        for c in "Hello, World!"[::-1]:
+            code += "<]>"*(c != 'H') + "!-"*ord(c)
+
+        code += ">>>!<<{<}!"
+        self.run_test(code, "Hello, World!", incomplete=True)
+
+    def run_test(self, prog, output=None, incomplete=False):
         if isinstance(prog, tuple):
             prog, input_ = prog
         else:
             input_ = ""
 
-        sc = StackCats(prog)
+        sc = StackCats(prog, incomplete=incomplete)
         sc.run(input_)
 
-        if output is not None:
+        if output is not None and not incomplete:
             self.assertEqual(self.output(), output)
 
             # Assert cat without middle
