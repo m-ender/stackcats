@@ -25,6 +25,12 @@ class TestStackCats(unittest.TestCase):
     def test_xor(self):
         self.run_test(("^", "Abcde"), "#bcde")
 
+    def test_xor1(self):
+        code = "<]>:^:-!-:^:<[>"
+
+        self.run_test((code, "a"), "`")
+        self.run_test((code, "`"), "a")
+
     def run_test(self, prog, output=None):
         if isinstance(prog, tuple):
             prog, input_ = prog

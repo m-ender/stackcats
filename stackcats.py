@@ -58,6 +58,7 @@ class StackCats():
         self.loop_stack = [] # First half, [[ip, count]]
         self.loop_count = None # Second half
         self.loop_map = {}
+        self.loop_conditions = {}
         index_stack = []
 
         for i,c in enumerate(code):
@@ -154,6 +155,23 @@ class StackCats():
             else:
                 elem = self.stack_tape[self.stack_num-1].pop()
                 self.push(elem)
+
+        elif instruction == '{':
+            if self.ip in self.loop_conditions:
+                elem = self.pop()
+                self.push(elem)
+
+                if elem == self.loop_conditions[self.ip]:
+                    self.ip = self.loop_map[self.ip]
+
+            else:
+                elem = self.pop()
+                self.push(elem)
+
+                self.loop_conditions[self.ip] = elem
+
+        elif instruction == '}':
+            self.ip = self.loop_map[self.ip]
                 
     def pop(self):
         return self.curr_stack.pop()
