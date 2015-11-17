@@ -65,9 +65,6 @@ class StackCats():
         index_stack = []
 
         for i,c in enumerate(code):
-            if len(code) % 2 == 1 and i == len(code)//2 and index_stack:
-                raise InvalidCodeException("No loops through centre")
-
             if c == "{":
                 index_stack.append(i)
 
