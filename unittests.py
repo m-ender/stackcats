@@ -41,28 +41,31 @@ class TestStackCats(unittest.TestCase):
         code = ">>"
 
         for c in "Hello, World!"[::-1]:
-            code += "<]>"*(c != 'H') + "!-"*ord(c)
+            code += "<]>"*(c != '!') + "!-"*ord(c)
 
         code += ">>>!<<{<}!"
-        self.run_test(code, "Hello, World!", incomplete=True)
+        self.run_test(code, "Hello, World!", mirror=True)
 
-    def run_test(self, prog, output=None, incomplete=False):
+    def run_test(self, prog, output=None, mirror=False):
         if isinstance(prog, tuple):
             prog, input_ = prog
         else:
             input_ = ""
 
-        sc = StackCats(prog, incomplete=incomplete)
+        sc = StackCats(prog, mirror=mirror)
         sc.run(input_)
 
-        if output is not None and not incomplete:
+        if output is not None:
             self.assertEqual(self.output(), output)
 
             # Assert cat without middle
-            if len(prog) % 2 == 1:
-                prog = prog[:len(prog)//2] + prog[len(prog)//2 + 1:]
+            if len(prog) % 2 == 1 or mirror:
+                if mirror:
+                    prog = prog[:-1] + ' '
+                else:
+                    prog = prog[:len(prog)//2] + prog[len(prog)//2 + 1:]
 
-                sc = StackCats(prog)
+                sc = StackCats(prog, mirror=mirror)
                 sc.run(input_)
                 self.assertEqual(self.output(), input_)
 

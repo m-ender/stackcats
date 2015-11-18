@@ -36,14 +36,14 @@ class BottomlessStack():
 
 
 class StackCats():
-    def __init__(self, code, trace=False, incomplete=False):
+    def __init__(self, code, trace=False, mirror=False):
         # TODO: Error on invalid chars
 
         # Check code validity
         pairs = "([{<\/>}])"
         validity_dict = dict(zip(pairs, pairs[::-1]))
 
-        if incomplete:
+        if mirror:
             code = code + "".join(validity_dict.get(c, c) for c in code[:-1][::-1])
 
         self.code = code
@@ -70,7 +70,7 @@ class StackCats():
 
             elif c == "}":
                 if not index_stack:
-                    raise InvalidCodeException("Mismatched loops brackets")
+                    raise InvalidCodeException("Mismatched loop brackets")
 
                 start = index_stack.pop()
                 self.loop_map[start] = i
@@ -78,7 +78,7 @@ class StackCats():
 
         if index_stack:
             # Should not be reachable but just in case
-            raise InvalidCodeException("Mismatched loops brackets")
+            raise InvalidCodeException("Mismatched loop brackets")
 
     def run(self, input_=""):
         self.stack_tape = defaultdict(BottomlessStack)
@@ -184,8 +184,8 @@ class StackCats():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--trace', help="trace every step", action="store_true")
-    parser.add_argument('-i', '--incomplete', help="incomplete mode: source is expanded "
-                        "with last char at centre, before executing", action="store_true")
+    parser.add_argument('-m', '--mirror', help="mirror mode: source is expanded "
+                        "with last char at centre before executing", action="store_true")
     parser.add_argument("program_path", help="path to file containing program",
                         type=str)
     parser.add_argument("input_path", nargs='?', help="path to file containing input",
@@ -204,7 +204,7 @@ if __name__ == '__main__':
         input_ = ""
 
     try:
-        interpreter = StackCats(code, args.trace, args.incomplete)
+        interpreter = StackCats(code, args.trace, args.mirror)
     except InvalidCodeException as e:
         exit(e)
 
