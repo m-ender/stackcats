@@ -1,4 +1,6 @@
 *.txt
+*.sublime-workspace
+mycode
 
 #################
 ## Eclipse
