@@ -4,47 +4,83 @@ require_relative 'stack'
 
 class Tape
     def initialize 
-        @tape_right = [Stack.new]
-        @tape_left = []
+        @pos = 0
+        @tape = [Stack.new]
+    end
+
+    def stack
+        @tape[@pos]
     end
 
     def peek
-        @tape_right[0].peek
+        stack.peek
     end
 
     def push value
-        @tape_right[0].push value
+        stack.push value
     end
 
     def pop
-        @tape_right[0].pop
+        stack.pop
     end
 
     def empty?
-        @tape_right[0].empty?
+        stack.empty?
     end
 
     def move_left
-        @tape_left << Stack.new if @tape_left.empty?
-        @tape_right.unshift @tape_left.pop
-        @tape_right.pop if @tape_right[-1].empty?
+        if @pos == 0
+            @tape.unshift Stack.new 
+        else
+            @pos -= 1
+        end
+        @tape.pop if @tape[-1].empty?
     end
 
     def move_right
-        @tape_left.push @tape_right.shift
-        @tape_left.shift if @tape_left[0].empty?
-        @tape_right << Stack.new if @tape_right.empty?
+        if @tape[0].empty?
+            @tape.shift
+        else
+            @pos += 1
+        end
+        @tape << Stack.new if @pos == @tape.size
     end
 
     def swap_left
-        @tape_left << Stack.new if @tape_left.empty?
-        @tape_left[-1], @tape_right[0] = @tape_right[0], @tape_left[-1]
-        @tape_left.shift if @tape_left[0].empty?
+        if @pos == 0
+            @tape.unshift Stack.new
+            @pos += 1
+        end
+        @tape[@pos], @tape[@pos-1] = @tape[@pos-1], @tape[@pos]
+        if @tape[0].empty?
+            @tape_left.shift
+            @pos -= 1
+        end
     end
 
     def swap_right
-        @tape_right << Stack.new if @tape_right.size < 2
-        @tape_right[0], @tape_right[1] = @tape_right[1], @tape_right[0]
-        @tape_right.pop if @tape_right[-1].empty?
+        @tape << Stack.new if @pos == @tape.size-1
+        @tape[@pos], @tape[@pos+1] = @tape[@pos+1], @tape[@pos]
+        @tape_left.pop if @tape[-1].empty?
+    end
+
+    def to_s
+        max_depth = @tape.map(&:depth).max
+        widths = @tape.map do |st|
+            (st.to_a.map{ |val| val.to_s.size } + [1]).max
+        end
+        tape_head = ' '*(3 + widths[0..@pos].reduce(:+) + @pos) + 'v'
+        ([tape_head] + max_depth.times.map do |y|
+            pos = max_depth - y - 1
+            surroundings = pos == 0 ? '...' : '   '
+            ([surroundings] + @tape.each_with_index.map do |st, i|
+                list = st.to_a
+                if pos < list.size
+                    list[pos].to_s.rjust(widths[i])
+                else
+                    ' '*widths[i]
+                end
+            end + [surroundings]) * ' '
+        end + ['    ' + widths.map{|w|'0'.rjust(w)} *' ', tape_head.tr('v','^')]) * $/ 
     end
 end

@@ -24,4 +24,8 @@ class Stack
     def peek
         empty? ? 0 : @stack[-1]
     end
+
+    def to_a
+        @stack
+    end
 end

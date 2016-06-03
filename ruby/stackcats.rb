@@ -138,6 +138,8 @@ class StackCats
             break if @max_ticks > -1 && @tick >= @max_ticks
         end
 
+        print_debug_info if @debug_level > 1
+
         until @tape.empty?
             @out_str.print (@tape.pop % 256).chr
         end
@@ -148,9 +150,12 @@ class StackCats
     private
 
     def print_debug_info
-        $stderr.puts "\nTick #{@tick}:"
-        $stderr.puts @program[@ip].inspect
-        $stderr.puts @tape.inspect
+        $stderr.puts "\nTick #{@tick}"
+        $stderr.puts "Tape:"
+        $stderr.puts @tape.to_s
+        $stderr.puts "Program:"
+        $stderr.puts @program
+        $stderr.puts ' '*@ip + '^'
     end
 
     def process op
