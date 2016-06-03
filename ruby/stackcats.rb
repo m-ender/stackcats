@@ -86,7 +86,6 @@ class StackCats
             case op
             when :open_value_loop, :open_sign_loop
                 open_loops.push [op, pos]
-                open_loops.push [op, pos]
             when :close_value_loop
                 if open_loops.empty? || open_loops.peek[0] != :open_value_loop
                     $stderr.puts "Error: unmatched }"
@@ -185,9 +184,9 @@ class StackCats
             @tape.move_right
             @tape.push val
         when :open_value_loop
-            @loop_conds << @tape.peek
+            @loop_conds.push @tape.peek
         when :close_value_loop
-            if @tape.peek == @loop_conds[-1]
+            if @tape.peek == @loop_conds.peek
                 @loop_conds.pop
             else
                 @ip = @loop_targets[@ip]
