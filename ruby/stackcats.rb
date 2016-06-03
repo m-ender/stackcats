@@ -65,7 +65,8 @@ class StackCats
 
     def preprocess_source
         # Validate symmetry
-        if @program != @program.reverse.tr('(){}[]<>\/', ')(}{][></\\')
+        program = @debug_level > 0 ? @program.gsub('"', '') : @program
+        if program != program.reverse.tr('(){}[]<>\/', ')(}{][></\\')
             $stderr.puts "Error: program is not symmetric"
             exit
         end
@@ -78,7 +79,7 @@ class StackCats
         @program.each_char do |c|
             op = OPERATORS[c]
             if op == :invalid || op == :debug && @debug_level == 0
-                $stderr.puts "Error: invalid character in source code, #{op}"
+                $stderr.puts "Error: invalid character in source code, #{c}"
                 exit
             end
 
