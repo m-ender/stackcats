@@ -11,7 +11,7 @@ class StackCats
         # Asymmetric characters:
         # "#$%&,12345679;?@`~"
         # Unused self-symmetric characters:
-        # " '*+.=08AMOUVWXYovwx"
+        # " *+.08AMOUVWYovwx"
         # Unused symmetric pairs:
         # "bdpq"
 
@@ -30,10 +30,13 @@ class StackCats
         # Self-symmetric characters:
         '!'  => :bit_not,
         '"'  => :debug,
+        '\'' => :xor_1,
         '-'  => :negate,
         ':'  => :swap,
+        '='  => :swap_tops,
         'I'  => :cond_push,
         'T'  => :cond_neg,
+        'X'  => :swap_stacks,
         '^'  => :xor,
         '_'  => :sub,
         '|'  => :reverse,
@@ -198,6 +201,8 @@ class StackCats
             @tape.push ~@tape.pop
         when :negate
             @tape.push -@tape.pop
+        when :xor_1
+            @tape.push (@tape.pop ^ 1)
         when :xor
             val = @tape.pop
             @tape.push (@tape.peek ^ val)
@@ -216,6 +221,21 @@ class StackCats
             end
 
             list.each { |val| @tape.push val }
+        when :swap_tops
+            @tape.move_left
+            x = @tape.pop
+            @tape.move_right
+            @tape.move_right
+            y = @tape.pop
+            @tape.push x
+            @tape.move_left
+            @tape.move_left
+            @tape.push y
+            @tape.move_right
+        when :swap_stacks
+            @tape.swap_left
+            @tape.swap_right
+            @tape.swap_left
 
         when :cond_push
             val = @tape.pop
