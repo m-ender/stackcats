@@ -2,8 +2,13 @@
 
 require_relative 'stackcats'
 
+def mirror str
+    str + str[0..-2].reverse.tr('(){}[]<>\/', ')(}{][></\\')
+end
+
 debug_level = 0
-mirror = false
+mirrored = false
+print_mirrored = false
 
 while ARGV[0][0] == '-'
     case ARGV[0]
@@ -12,7 +17,9 @@ while ARGV[0][0] == '-'
     when '-D'
         debug_level = 2
     when '-m'
-        mirror = true
+        mirrored = true
+    when '-M'
+        print_mirrored = true
     else
         $stderr.puts "Unknown command-line option #{ARGV[0]}"
     end
@@ -22,6 +29,11 @@ end
 
 source = ARGF.read
 
-source += source[0..-2].reverse.tr('(){}[]<>\/', ')(}{][></\\') if mirror
+if print_mirrored
+    puts mirror source
+    exit
+end
+
+source = mirror source if mirrored
 
 StackCats.run(source, debug_level)
