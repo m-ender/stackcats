@@ -11,7 +11,7 @@ Every program in Stack Cats is written on a single line, where each character is
 There are only two syntactic rules for Stack Cats:
 
 1. Every valid program must have mirror symmetry. That is, if the entire program is mirrored (see above), it must remain unchanged. This has a few implications. a) Every Stack Cats program computes an involution on the global memory state (since every program is its own inverse). b) Every even-length program computes the identity (i.e. a [cat program](http://esolangs.org/wiki/Cat_program)) provided that it terminates, since the second half undoes the first. c) Every non-trivial program has odd length. If we call the command in the centre of the program `A`, then every such program has the structure `pAq`, where `p` is an arbitrary program and `q` computes its inverse. Note that `A` needs to be one of the self-symmetric characters, so it is itself an involution. Hence, programming in Stack Cats is about finding a function `p` which transforms a very simple involution `A` into the desired program.
-2. Parentheses, `()`, and braces, `{}`, need to be balanced correctly, as they form loops. (`[]` and `<>` can appear individually and don't need be matched.)
+2. Parentheses, `()`, and braces, `{}`, need to be balanced correctly, as they form loops. They can be nested arbitrarily but not interleaved like `({)}`. (`[]` and `<>` can appear individually and don't need be matched.)
 
 ## Memory model
 
@@ -25,4 +25,39 @@ At the end of the program (provided it terminates), the contents of the current 
 
 ## Commands
 
-*tbd*
+### Control Flow
+
+Remember that `()` and `{}` always have to be balanced correctly.
+
+- `(`: If the top of the current stack is zero or negative, jump past the matching `)`.
+- `)`: If the top of the current stack is zero or negative, jump back past the matching `(`.
+- `{`: Remembers the top of the current stack.
+- `}`: If the top of the current stack differs from the value remembered at the matching `{`, jump back past the matching `{` (without remembering a new value).
+
+In summary, `()` is a loop which is entered and left only when the top of the stack is positive, whereas `{}` is a loop which always iterates at least once and stops when the value from the beginning is seen again at the end of an iteration.
+
+### Arithmetic
+
+- `-`: Negate the top of the current stack (i.e. multiply by `-1`).
+- `!`: Take the bitwise NOT of the top of the current stack (this is equivalent to incrementing and negating).
+- `'`: Toggle the least-significant bit of the top of the current stack. In other words, compute `x XOR 1`.
+- `_`: Pop `a`, pop `b`, push `b`, push `b - a`.
+- `^`: Pop `a`, pop `b`, push `b`, push `b XOR a`.
+- `T`: If the top of the current stack is positive, negate the value underneath.
+
+### Stack manipulation
+
+- `:`: Swap the top two elements of the current stack.
+- `=`: Swap the top elements of the two adjacent stacks.
+- `|`: Reverse all values on the current stack down to the first zero from the top.
+
+### Movement and tape manipulation
+
+- `<`: Move the tape head left one stack.
+- `>`: Move the tape head right one stack.
+- `[`: Move the tape head left one stack, taking the top of the current stack with it.
+- `]`: Move the tape head right one stack, taking the top of the current stack with it.
+- `I`: If the top of the current stack is negative, do `[-`, if it is positive, do `]-`, if it is zero, do nothing.
+- `/`: Swap the current stack with the stack to the left, and move the tape head left.
+- `\`: Swap the current stack with the stack to the right, and move the tape head right.
+- `X`: Swap the stacks left and right of the current stack.
