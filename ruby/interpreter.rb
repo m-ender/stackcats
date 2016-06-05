@@ -9,6 +9,7 @@ end
 debug_level = 0
 mirrored = false
 print_mirrored = false
+num_input = num_output = false
 
 while ARGV[0][0] == '-'
     case ARGV[0]
@@ -20,6 +21,12 @@ while ARGV[0][0] == '-'
         mirrored = true
     when '-M'
         print_mirrored = true
+    when '-n'
+        num_input = num_output = true
+    when '-i'
+        num_input = true
+    when '-o'
+        num_output = true
     else
         $stderr.puts "Unknown command-line option #{ARGV[0]}"
     end
@@ -36,4 +43,4 @@ end
 
 source = mirror source if mirrored
 
-StackCats.run(source, debug_level)
+StackCats.run(source, num_input, num_output, debug_level)

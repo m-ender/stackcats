@@ -44,11 +44,13 @@ class StackCats
 
     OPERATORS.default = :invalid
 
-    def self.run(src, debug_level=0, in_str=$stdin, out_str=$stdout, max_ticks=-1)
-        new(src, debug_level, in_str, out_str, max_ticks).run
+    def self.run(src, num_input=false, num_output=false, debug_level=0, in_str=$stdin, out_str=$stdout, max_ticks=-1)
+        new(src, num_input, num_output, debug_level, in_str, out_str, max_ticks).run
     end
 
-    def initialize(src, debug_level=false, in_str=$stdin, out_str=$stdout, max_ticks=-1)
+    def initialize(src, num_input=false, num_output=false, debug_level=0, in_str=$stdin, out_str=$stdout, max_ticks=-1)
+        @num_input = num_input
+        @num_output = num_output
         @debug_level = debug_level
         @in_str = in_str
         @out_str = out_str
@@ -123,8 +125,14 @@ class StackCats
 
     def run
         input = []
-        while (val = read_byte)
-            input << val.ord
+        if @num_input
+            while (val = read_int)
+                input << val
+            end
+        else
+            while (val = read_byte)
+                input << val.ord
+            end
         end
 
         input.reverse.each do |val|
@@ -144,7 +152,11 @@ class StackCats
         print_debug_info if @debug_level > 1
 
         until @tape.empty?
-            @out_str.print (@tape.pop % 256).chr
+            if @num_output
+                @out_str.puts @tape.pop
+            else
+                @out_str.print (@tape.pop % 256).chr
+            end
         end
 
         @max_ticks > -1 && @tick >= @max_ticks
@@ -265,5 +277,38 @@ class StackCats
             # result = @in_str.read(1) while result =~ /\r|\n/
         end
         result
+    end
+
+    def read_int
+        val = 0
+        sign = 1
+        eof = true
+        loop do
+            byte = read_byte
+            case byte
+            when '+'
+                sign = 1
+            when '-'
+                sign = -1
+            when '0'..'9', nil
+                @next_byte = byte
+            else
+                next
+            end
+            break
+        end
+
+        loop do
+            byte = read_byte
+            if byte && byte[/\d/]
+                val = val*10 + byte.to_i
+                eof = false
+            else
+                @next_byte = byte
+                break
+            end
+        end
+
+        eof ? nil : val*sign
     end
 end
