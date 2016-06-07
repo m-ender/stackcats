@@ -36,7 +36,7 @@ class StackCats
         ':'  => :swap,
         '='  => :swap_tops,
         'I'  => :cond_push,
-        'T'  => :cond_neg,
+        'T'  => :cond_reverse,
         'X'  => :swap_stacks,
         '^'  => :xor,
         '_'  => :sub,
@@ -263,10 +263,8 @@ class StackCats
                 @tape.move_right
             end
             @tape.push val
-        when :cond_neg
-            val = @tape.pop
-            @tape.push -@tape.pop if val > 0
-            @tape.push val
+        when :cond_reverse
+            @tape.reverse! if @tape.peek != 0
 
         when :debug
             print_debug_info

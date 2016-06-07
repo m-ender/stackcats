@@ -28,4 +28,8 @@ class Stack
     def to_a
         @stack
     end
+
+    def reverse!
+        @stack.reverse!
+    end
 end

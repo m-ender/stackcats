@@ -25,40 +25,42 @@ At the end of the program (provided it terminates), the contents of the current 
 
 ## Commands
 
+In the following section, "the stack" refers to the stack currently pointed at by the tape head, and "the top" refers to the top value on that stack.
+
 ### Control Flow
 
 Remember that `()` and `{}` always have to be balanced correctly.
 
-- `(`: If the top of the current stack is zero or negative, jump past the matching `)`.
-- `)`: If the top of the current stack is zero or negative, jump back past the matching `(`.
-- `{`: Remembers the top of the current stack.
-- `}`: If the top of the current stack differs from the value remembered at the matching `{`, jump back past the matching `{` (without remembering a new value).
+- `(`: If the top is zero or negative, jump past the matching `)`.
+- `)`: If the top is zero or negative, jump back past the matching `(`.
+- `{`: Remembers the top.
+- `}`: If the top differs from the value remembered at the matching `{`, jump back past the matching `{` (without remembering a new value).
 
-In summary, `()` is a loop which is entered and left only when the top of the stack is positive, whereas `{}` is a loop which always iterates at least once and stops when the value from the beginning is seen again at the end of an iteration.
+In summary, `()` is a loop which is entered and left only when the top is positive, whereas `{}` is a loop which always iterates at least once and stops when the value from the beginning is seen again at the end of an iteration.
 
 ### Arithmetic
 
-- `-`: Negate the top of the current stack (i.e. multiply by `-1`).
-- `!`: Take the bitwise NOT of the top of the current stack (this is equivalent to incrementing and negating).
-- `'`: Toggle the least-significant bit of the top of the current stack. In other words, compute `x XOR 1`.
+- `-`: Negate the top (i.e. multiply by `-1`).
+- `!`: Take the bitwise NOT of the top (this is equivalent to incrementing and negating).
+- `'`: Toggle the least-significant bit of the top. In other words, compute `x XOR 1`.
 - `_`: Pop `a`, pop `b`, push `b`, push `b - a`.
 - `^`: Pop `a`, pop `b`, push `b`, push `b XOR a`.
-- `T`: If the top of the current stack is positive, negate the value underneath.
 
 ### Stack manipulation
 
-- `:`: Swap the top two elements of the current stack.
-- `8`: Swap the top and third elements of the current stack.
+- `:`: Swap the top two elements of the stack.
+- `8`: Swap the top and third elements of the stack.
 - `=`: Swap the top elements of the two adjacent stacks.
-- `|`: Reverse all values on the current stack down to the first zero from the top.
+- `|`: Reverse all values on the stack down to (and excluding) the first zero from the top.
+- `T`: If the top is non-zero, reverse the entire stack (down to and including the bottommost non-zero value).
 
 ### Movement and tape manipulation
 
 - `<`: Move the tape head left one stack.
 - `>`: Move the tape head right one stack.
-- `[`: Move the tape head left one stack, taking the top of the current stack with it.
-- `]`: Move the tape head right one stack, taking the top of the current stack with it.
-- `I`: If the top of the current stack is negative, do `[-`, if it is positive, do `]-`, if it is zero, do nothing.
+- `[`: Move the tape head left one stack, taking the top with it.
+- `]`: Move the tape head right one stack, taking the top with it.
+- `I`: If the top is negative, do `[-`, if it is positive, do `]-`, if it is zero, do nothing.
 - `/`: Swap the current stack with the stack to the left, and move the tape head left.
 - `\`: Swap the current stack with the stack to the right, and move the tape head right.
 - `X`: Swap the stacks left and right of the current stack.

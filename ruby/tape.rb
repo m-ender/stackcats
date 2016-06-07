@@ -28,6 +28,10 @@ class Tape
         stack.empty?
     end
 
+    def reverse!
+        stack.reverse!
+    end
+
     def move_left
         if @pos == 0
             @tape.unshift Stack.new 
