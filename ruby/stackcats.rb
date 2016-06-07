@@ -9,9 +9,9 @@ class StackCats
 
     OPERATORS = {
         # Asymmetric characters:
-        # "#$%&,12345679;?@`~"
+        # "#$%&,012345679;?@`~"
         # Unused self-symmetric characters:
-        # " *+.08AMOUVWYovwx"
+        # " *+.AMOUVWYovwx"
         # Unused symmetric pairs:
         # "bdpq"
 
@@ -32,6 +32,7 @@ class StackCats
         '"'  => :debug,
         '\'' => :xor_1,
         '-'  => :negate,
+        '8'  => :swap_third,
         ':'  => :swap,
         '='  => :swap_tops,
         'I'  => :cond_push,
@@ -226,6 +227,11 @@ class StackCats
             top, bottom = @tape.pop, @tape.pop
             @tape.push top
             @tape.push bottom
+        when :swap_third
+            top, middle, bottom = @tape.pop, @tape.pop, @tape.pop
+            @tape.push top
+            @tape.push middle
+            @tape.push bottom
         when :reverse
             list = []
             while @tape.peek != 0
@@ -273,8 +279,8 @@ class StackCats
             result = @next_byte
             @next_byte = nil
         else
-            result = @in_str.read(1)
-            # result = @in_str.read(1) while result =~ /\r|\n/
+            # result = @in_str.read(1)
+            result = @in_str.read(1) while result =~ /\r|\n/
         end
         result
     end

@@ -48,6 +48,7 @@ In summary, `()` is a loop which is entered and left only when the top of the st
 ### Stack manipulation
 
 - `:`: Swap the top two elements of the current stack.
+- `8`: Swap the top and third elements of the current stack.
 - `=`: Swap the top elements of the two adjacent stacks.
 - `|`: Reverse all values on the current stack down to the first zero from the top.
 
