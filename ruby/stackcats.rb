@@ -11,7 +11,7 @@ class StackCats
         # Asymmetric characters:
         # "#$%&,012345679;?@`~"
         # Unused self-symmetric characters:
-        # " *+.AMOUVWYovwx"
+        # " *.8AMOUVWYovwx"
         # Unused symmetric pairs:
         # "bdpq"
 
@@ -31,8 +31,8 @@ class StackCats
         '!'  => :bit_not,
         '"'  => :debug,
         '\'' => :xor_1,
+        '+'  => :swap_third,
         '-'  => :negate,
-        '8'  => :swap_third,
         ':'  => :swap,
         '='  => :swap_tops,
         'I'  => :cond_push,
