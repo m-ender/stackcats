@@ -72,10 +72,7 @@ class StackCats
     def preprocess_source
         # Validate symmetry
         program = @debug_level > 0 ? @program.gsub('"', '') : @program
-        if program != program.reverse.tr('(){}[]<>\/', ')(}{][></\\')
-            $stderr.puts "Error: program is not symmetric"
-            exit
-        end
+        error "Error: program is not symmetric" if program != program.reverse.tr('(){}[]<>\/', ')(}{][></\\')
 
         # Pre-parse loops
         @loop_targets = Hash.new
@@ -84,26 +81,19 @@ class StackCats
         pos = 0
         @program.each_char do |c|
             op = OPERATORS[c]
-            if op == :invalid || op == :debug && @debug_level == 0
-                $stderr.puts "Error: invalid character in source code, #{c}"
-                exit
-            end
+            error "Error: invalid character in source code, #{c}" if op == :invalid || op == :debug && @debug_level == 0
 
             case op
             when :open_value_loop, :open_sign_loop
                 open_loops.push [op, pos]
             when :close_value_loop
-                if open_loops.empty? || open_loops.peek[0] != :open_value_loop
-                    $stderr.puts "Error: unmatched }"
-                    exit
-                end
+                error "Error: unmatched }" if open_loops.empty? || open_loops.peek[0] != :open_value_loop
+
                 _, open_pos = open_loops.pop
                 @loop_targets[pos] = open_pos
             when :close_sign_loop
-                if open_loops.empty? || open_loops.peek[0] != :open_sign_loop
-                    $stderr.puts "Error: unmatched )"
-                    exit
-                end
+                error "Error: unmatched )" if open_loops.empty? || open_loops.peek[0] != :open_sign_loop
+
                 _, open_pos = open_loops.pop
                 @loop_targets[open_pos] = pos
                 @loop_targets[pos] = open_pos
@@ -115,11 +105,9 @@ class StackCats
         if !open_loops.empty?
             case open_loops.peek[0]
             when :open_value_loop
-                $stderr.puts "Error: unmatched {"
-                exit
+                error "Error: unmatched {"
             when :open_sign_loop
-                $stderr.puts "Error: unmatched ("
-                exit
+                error "Error: unmatched ("
             end
         end
     end
@@ -319,5 +307,10 @@ class StackCats
         end
 
         eof ? nil : val*sign
+    end
+
+    def error msg
+        $stderr.puts msg + " | " + msg.reverse
+        exit     
     end
 end
