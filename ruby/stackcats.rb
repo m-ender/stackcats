@@ -265,6 +265,7 @@ class StackCats
     end
 
     def read_byte
+        return nil if STDIN.tty?
         result = nil
         if @next_byte
             result = @next_byte
