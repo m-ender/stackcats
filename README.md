@@ -19,9 +19,17 @@ Stack Cats operates on an infinite tape of stacks. The tape has a tape head whic
 
 ## I/O
 
-To ensure full reversibility, Stack Cats has no I/O commands, as these side-effects cannot be reversed cleanly. Instead, when the program starts, all input (which has to be finite) is read from the standard input stream. All the bytes are pushed onto the initial stack, with the first input byte on top and the last input byte at the bottom.
+To ensure full reversibility, Stack Cats has no I/O commands, as these side-effects cannot be reversed cleanly. Instead, when the program starts, all input (which has to be finite) is read from the standard input stream. A `-1` is pushed on the initial stack, and then all the bytes from the input are pushed, with the first input byte on top and the last input byte at the bottom (just above the `-1`).
 
-At the end of the program (provided it terminates), the contents of the current stack (pointed at by the tape head) are taken modulo 256 and printed as bytes to the standard output stream. Again, the value on top is used for the first byte and the value at the bottom is used for the last byte. Note that to print trailing null-bytes, you should use a multiple of 256 (other than zero), because all zeros at the bottom are assumed to be part of the implicit infinite pool of zeros and will not be printed.
+At the end of the program (provided it terminates), the contents of the current stack (pointed at by the tape head) are taken modulo 256 and printed as bytes to the standard output stream. Again, the value on top is used for the first byte and the value at the bottom is used for the last byte. If the value at the very bottom is `-1`, it is ignored.
+
+## Execution Options
+
+Every specification-compliant interpreter should provide the following options for executing Stack Cats programs:
+
+- For input, read decimal signed integers instead of bytes. If this option is used, the input is scanned for numbers matching the regular expression `[-+][0-9]+` and push those instead of byte values. (Still with a `-1` at the bottom.)
+- For output, print decimal signed integers instead of bytes. Every integer is followed by a single linefeed (0x0A). (Still, an optional `-1` at the bottom is ignored.)
+- Implicitly mirror the source code. Since the second half of every valid Stack Cats program is redundant, there should be an option to omit everything after the centre character. With this option, for example the source code `:>[(!)-` would represent the full Stack Cats program `:>[(!)-(!)]<:`. Note that the final character isn't mirrored, because that would result in a trivial even-length program.
 
 ## Commands
 
@@ -64,3 +72,29 @@ In summary, `()` is a loop which is entered and left only when the top is positi
 - `/`: Swap the current stack with the stack to the left, and move the tape head left.
 - `\`: Swap the current stack with the stack to the right, and move the tape head right.
 - `X`: Swap the stacks left and right of the current stack.
+
+## Interpreters
+
+This repository contains two reference implementations, one in Python and one in Ruby.
+
+### Python
+
+*work in progress*
+
+### Ruby
+
+The Ruby interpreter can be run as follows:
+
+    ruby ./interpreter.rb [options] ./program.sks
+
+It supports the following options:
+
+- `-i` use integer input.
+- `-o` use integer output.
+- `-n` use both integer input and output. (`n` for **n**umeric.)
+- `-m` implicitly mirror the source code.
+- `-M` instead of executing the program, mirror and print it.
+- `-d` debug level 1: the command `"` can be inserted into the program to print debug information. All `"` are stripped before checking symmetry.
+- `-D` debug level 2: print debug information after every command.
+
+Options can be combined like `-imd`.

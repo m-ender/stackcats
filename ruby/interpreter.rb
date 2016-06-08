@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 # coding: utf-8
 
 require_relative 'stackcats'
@@ -12,24 +13,13 @@ print_mirrored = false
 num_input = num_output = false
 
 while ARGV[0][0] == '-'
-    case ARGV[0]
-    when '-d'
-        debug_level = 1
-    when '-D'
-        debug_level = 2
-    when '-m'
-        mirrored = true
-    when '-M'
-        print_mirrored = true
-    when '-n'
-        num_input = num_output = true
-    when '-i'
-        num_input = true
-    when '-o'
-        num_output = true
-    else
-        $stderr.puts "Unknown command-line option #{ARGV[0]}"
-    end
+    debug_level = 1 if ARGV[0][/d/]
+    debug_level = 2 if ARGV[0][/D/]
+    mirrored = true if ARGV[0][/m/]
+    print_mirrored = true if ARGV[0][/M/]
+    num_input = num_output = true if ARGV[0][/n/]
+    num_input = true if ARGV[0][/i/]
+    num_output = true if ARGV[0][/o/]
 
     ARGV.shift
 end

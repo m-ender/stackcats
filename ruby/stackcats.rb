@@ -136,9 +136,12 @@ class StackCats
             end
         end
 
+        @tape.push -1
+
         input.reverse.each do |val|
             @tape.push val
         end
+
         while @ip < @program.size
             print_debug_info if @debug_level > 1
             
@@ -153,10 +156,12 @@ class StackCats
         print_debug_info if @debug_level > 1
 
         until @tape.empty?
+            val = @tape.pop
+            break if val == -1 && @tape.empty?
             if @num_output
-                @out_str.puts @tape.pop
+                @out_str.puts val
             else
-                @out_str.print (@tape.pop % 256).chr
+                @out_str.print (val % 256).chr
             end
         end
 
@@ -277,8 +282,8 @@ class StackCats
             result = @next_byte
             @next_byte = nil
         else
-            # result = @in_str.read(1)
-            result = @in_str.read(1) while result =~ /\r|\n/
+            result = @in_str.read(1)
+            # result = @in_str.read(1) while result =~ /\r|\n/
         end
         result
     end
