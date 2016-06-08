@@ -50,7 +50,7 @@ In summary, `()` is a loop which is entered and left only when the top is positi
 
 - `-`: Negate the top (i.e. multiply by `-1`).
 - `!`: Take the bitwise NOT of the top (this is equivalent to incrementing and negating).
-- `'`: Toggle the least-significant bit of the top. In other words, compute `x XOR 1`.
+- `*`: Toggle the least-significant bit of the top. In other words, compute `x XOR 1`.
 - `_`: Pop `a`, pop `b`, push `b`, push `b - a`.
 - `^`: Pop `a`, pop `b`, push `b`, push `b XOR a`.
 
