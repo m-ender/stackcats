@@ -63,7 +63,7 @@ class Tape():
         self.curr_stack.swallow_zeroes()
 
     def move_by(self, offset):
-        if not self.curr_stack:
+        if self.stack_num in self.stacks and not self.curr_stack:
             del self.stacks[self.stack_num]
 
         self.stack_num += offset
@@ -78,8 +78,11 @@ class Tape():
     def swap_stacks(self, num1, num2):
         self.stacks[num1], self.stacks[num2] = self.stacks[num2], self.stacks[num1]
 
-        if not self.stacks[num1]: del self.stacks[num1]
-        if not self.stacks[num2]: del self.stacks[num2]
+        if num1 in self.stacks and not self.stacks[num1]:
+            del self.stacks[num1]
+            
+        if num2 in self.stacks and not self.stacks[num2]:
+            del self.stacks[num2]
 
     def swap_left(self):
         self.swap_stacks(self.stack_num-1, self.stack_num)
@@ -136,14 +139,14 @@ class StackCats():
             print(code, end='')
 
 
-    def run(self, input_="", numeric_input=False, numeric_output=False):
+    def run(self, input_="", numeric_input=False, numeric_output=False, max_ticks=None):
         # Prepare tape, with initial input.
         self.tape = Tape()
         self.tape.push(-1)
 
         if numeric_input:
             for number in re.findall("[-+]?[0-9]+", input_)[::-1]:
-                self.tape.push(number)
+                self.tape.push(int(number))
         else:
             for c in input_[::-1]:
                 self.tape.push(ord(c))
@@ -151,10 +154,16 @@ class StackCats():
         # Run code.
         self.loop_conditions = []       
         self.ip = 0
+        self.ticks = 0
 
         while self.ip < len(self.code):
             self.interpret(self.code[self.ip])
             self.ip += 1
+            self.ticks += 1
+
+            if self.ticks is not None and self.ticks == max_ticks:
+                print("Program timed out", file=sys.stderr)
+                return
 
         # Output, ignoring any -1s at bottom.
         while self.tape:
@@ -164,7 +173,7 @@ class StackCats():
                 if numeric_output:
                     print(value)
                 else:
-                    sys.stdout.write(chr(value % 256))
+                    print(chr(value % 256), end='')
 
 
     def interpret(self, instruction):
@@ -192,7 +201,7 @@ class StackCats():
             self.tape.move_left()
 
         elif instruction == '\\':
-            self.tape_swap_right()
+            self.tape.swap_right()
             self.tape.move_right()
 
         elif instruction == '<':
@@ -308,6 +317,7 @@ if __name__ == '__main__':
         "centre before executing", action="store_true")
     parser.add_argument('-M', dest="print_mirrored", help="prints source code mirorred",
         action="store_true")
+    parser.add_argument('-n', dest="numeric", help="use numeric input and output", action="store_true")
     parser.add_argument("program_path", help="path to file containing program", type=str)
 
     # Open code file.
@@ -333,4 +343,4 @@ if __name__ == '__main__':
         exit(e)
 
     if not args.print_mirrored:
-        interpreter.run(input_)
+        interpreter.run(input_, args.numeric, args.numeric)
