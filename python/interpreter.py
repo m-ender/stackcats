@@ -40,6 +40,12 @@ class BottomlessStack():
     def __len__(self):
         return len(self.stack)
 
+    def __iter__(self):
+        return iter(self.stack)
+
+    def __getitem__(self, index):
+        return self.stack[index]
+
 
 class Tape():
     def __init__(self):
@@ -92,6 +98,32 @@ class Tape():
 
     def __len__(self):
         return len(self.curr_stack)
+
+    def __str__(self):
+        max_depth = max(map(len, self.stacks.values()))
+        min_num = min(self.stacks.keys())
+        max_num = max(self.stacks.keys())
+
+        rows = []
+
+        for i in range(max_depth+3):
+            rows.append(["..."] if i == max_depth else ["   "])
+
+        for n in range(min_num, max_num+1):
+            stack = self.stacks[n] if n in self.stacks else []
+            width = max(len(str(x)) for x in stack) if stack else 1
+
+            rows[0].append(('v' if self.stack_num == n else ' ').rjust(width))
+            rows[-1].append(('^' if self.stack_num == n else ' ').rjust(width))
+            rows[-2].append('0'.rjust(width))
+
+            for i in range(max_depth):
+                rows[max_depth-i].append((str(stack[i]) if i < len(stack) else '').rjust(width))
+
+        for i in range(max_depth+3):
+            rows[i].append("..." if i == max_depth else "   ")
+
+        return '\n'.join(' '.join(row).rstrip() for row in rows)           
 
 
 class DebugFlags(Enum):
@@ -154,16 +186,22 @@ class StackCats():
         # Run code.
         self.loop_conditions = []       
         self.ip = 0
-        self.ticks = 0
+        self.tick = 0
 
         while self.ip < len(self.code):
+            if self.debug & DebugFlags.PRINT_EVERY_TICK.value:
+                self.print_debug()
+            
             self.interpret(self.code[self.ip])
             self.ip += 1
-            self.ticks += 1
+            self.tick += 1
 
-            if self.ticks is not None and self.ticks == max_ticks:
+            if max_ticks is not None and self.tick == max_ticks:
                 print("Program timed out", file=sys.stderr)
                 return
+
+        if self.debug & DebugFlags.PRINT_EVERY_TICK.value:
+            self.print_debug()
 
         # Output, ignoring any -1s at bottom.
         while self.tape:
@@ -177,14 +215,8 @@ class StackCats():
 
 
     def interpret(self, instruction):
-        ip = self.ip
-
         self.execute_inst(instruction)
         self.tape.swallow_zeroes()
-
-        if self.debug & DebugFlags.PRINT_EVERY_TICK.value:
-            self.print_debug()
-
 
     def execute_inst(self, instruction):
         # Symmetric pairs
@@ -302,9 +334,14 @@ class StackCats():
         elif instruction == '"' and self.debug & DebugFlags.PRINT_AT_QUOTES.value:
             self.print_debug()
 
-    def print_debug():
-        # TODO: Implement printing debug information.
-        pass
+    def print_debug(self):
+        print(file=sys.stderr)
+        print("Tick", self.tick, file=sys.stderr)
+        print("Tape:", file=sys.stderr)
+        print(self.tape, file=sys.stderr)
+        print("Program:", file=sys.stderr)
+        print(self.code, file=sys.stderr)
+        print('^'.rjust(self.ip+1), file=sys.stderr)
 
 
 if __name__ == '__main__':
@@ -332,12 +369,12 @@ if __name__ == '__main__':
     input_ = ''.join(sys.stdin.readlines())
 
     # Check flags.
+    debug_level = 0
+
+    if args.debug1:
+        debug_level |= 1
     if args.debug2:
-        debug_level = 2
-    elif args.debug1:
-        debug_level = 1
-    else:
-        debug_level = 0
+        debug_level |= 2
     
     try:
         interpreter = StackCats(code, debug_level, args.mirrored, args.print_mirrored)
