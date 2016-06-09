@@ -27,7 +27,7 @@ At the end of the program (provided it terminates), the contents of the current 
 
 Every specification-compliant interpreter should provide the following options for executing Stack Cats programs:
 
-- For input, read decimal signed integers instead of bytes. If this option is used, the input is scanned for numbers matching the regular expression `[-+][0-9]+` and push those instead of byte values. (Still with a `-1` at the bottom.)
+- For input, read decimal signed integers instead of bytes. If this option is used, the input is scanned for numbers matching the regular expression `[-+]?[0-9]+` and push those instead of byte values. (Still with a `-1` at the bottom.)
 - For output, print decimal signed integers instead of bytes. Every integer is followed by a single linefeed (0x0A). (Still, an optional `-1` at the bottom is ignored.)
 - Implicitly mirror the source code. Since the second half of every valid Stack Cats program is redundant, there should be an option to omit everything after the centre character. With this option, for example the source code `:>[(!)-` would represent the full Stack Cats program `:>[(!)-(!)]<:`. Note that the final character isn't mirrored, because that would result in a trivial even-length program.
 
