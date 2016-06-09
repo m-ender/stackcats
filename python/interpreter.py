@@ -244,7 +244,7 @@ class StackCats():
             value = self.tape.pop()
             self.tape.push(self.tape.peek() ^ value)
 
-        elif instruction == '-':
+        elif instruction == '_':
             value = self.tape.pop()
             self.tape.push(self.tape.peek() - value)
 
@@ -313,10 +313,12 @@ if __name__ == '__main__':
         " in code", action="store_true")
     parser.add_argument('-D', dest="debug2", help="debug level 2: print debug info at every tick",
         action="store_true")
-    parser.add_argument('-m', dest="mirrored", help="mirror mode: source is expanded with last char at"
-        "centre before executing", action="store_true")
+    parser.add_argument('-m', dest="mirrored", help="expand source with last char at centre before"
+        "executing", action="store_true")
     parser.add_argument('-M', dest="print_mirrored", help="prints source code mirorred",
         action="store_true")
+    parser.add_argument('-i', dest="numeric_input", help="use numeric input", action="store_true")
+    parser.add_argument('-o', dest="numeric_output", help="use numeric output", action="store_true")
     parser.add_argument('-n', dest="numeric", help="use numeric input and output", action="store_true")
     parser.add_argument("program_path", help="path to file containing program", type=str)
 
@@ -343,4 +345,4 @@ if __name__ == '__main__':
         exit(e)
 
     if not args.print_mirrored:
-        interpreter.run(input_, args.numeric, args.numeric)
+        interpreter.run(input_, args.numeric or args.numeric_input, args.numeric or args.numeric_output)
