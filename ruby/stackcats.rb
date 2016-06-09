@@ -255,7 +255,7 @@ class StackCats
             elsif val > 0
                 @tape.move_right
             end
-            @tape.push val
+            @tape.push -val
         when :cond_reverse
             @tape.reverse! if @tape.peek != 0
 
