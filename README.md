@@ -17,11 +17,13 @@ There are only two syntactic rules for Stack Cats:
 
 Stack Cats operates on an infinite tape of stacks. The tape has a tape head which can be moved and points at the "current" stack. Commands tend to operate locally on or near the tape head. The stacks store arbitrary-precision (signed) integers and contain an implicit, infinite amount of zeros at the bottom. Initially, all stacks but the one where the tape head starts are empty (apart from those zeros).
 
+Note that any zeros on top of this implicit pool of zeros are not distinguishable from it by any means. Therefore, in the remainder of this document "the bottom of the stack" always refers to the last non-zero value on the stack.
+
 ## I/O
 
 To ensure full reversibility, Stack Cats has no I/O commands, as these side-effects cannot be reversed cleanly. Instead, when the program starts, all input (which has to be finite) is read from the standard input stream. A `-1` is pushed on the initial stack, and then all the bytes from the input are pushed, with the first input byte on top and the last input byte at the bottom (just above the `-1`).
 
-At the end of the program (provided it terminates), the contents of the current stack (pointed at by the tape head) are taken modulo 256 and printed as bytes to the standard output stream. Again, the value on top is used for the first byte and the value at the bottom is used for the last byte. If the value at the very bottom is `-1`, it is ignored.
+At the end of the program (provided it terminates), the contents of the current stack (pointed at by the tape head) are taken modulo 256 and printed as bytes to the standard output stream. Again, the value on top is used for the first byte and the value at the bottom is used for the last byte. If the value at the very bottom is `-1`, it is ignored. In order to print trailing null bytes you can either put a `-1` below them, or you can use any non-zero multiple of 256 which are also printed as null-bytes.
 
 ## Execution Options
 
@@ -39,10 +41,10 @@ In the following section, "the stack" refers to the stack currently pointed at b
 
 Remember that `()` and `{}` always have to be balanced correctly.
 
-- `(`: If the top is zero or negative, jump past the matching `)`.
-- `)`: If the top is zero or negative, jump back past the matching `(`.
+- `(`: If the top is zero or negative, control flow continues after the matching `)`.
+- `)`: If the top is zero or negative, control flow continues after the matching `(`.
 - `{`: Remembers the top.
-- `}`: If the top differs from the value remembered at the matching `{`, jump back past the matching `{` (without remembering a new value).
+- `}`: If the top differs from the value remembered at the matching `{`, control flow continues after the matching `{` (without remembering a new value).
 
 In summary, `()` is a loop which is entered and left only when the top is positive, whereas `{}` is a loop which always iterates at least once and stops when the value from the beginning is seen again at the end of an iteration.
 
