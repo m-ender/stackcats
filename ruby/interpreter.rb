@@ -4,7 +4,7 @@
 require_relative 'stackcats'
 
 def mirror str
-    str + str[0..-2].reverse.tr('(){}[]<>\/', ')(}{][></\\')
+    str + str[0..-2].reverse.tr('(){}[]<>\\\\/', ')(}{][></\\\\')
 end
 
 debug_level = 0

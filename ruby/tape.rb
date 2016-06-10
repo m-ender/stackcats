@@ -57,7 +57,7 @@ class Tape
         end
         @tape[@pos], @tape[@pos-1] = @tape[@pos-1], @tape[@pos]
         if @tape[0].empty?
-            @tape_left.shift
+            @tape.shift
             @pos -= 1
         end
     end
@@ -65,7 +65,7 @@ class Tape
     def swap_right
         @tape << Stack.new if @pos == @tape.size-1
         @tape[@pos], @tape[@pos+1] = @tape[@pos+1], @tape[@pos]
-        @tape_left.pop if @tape[-1].empty?
+        @tape.pop if @tape[-1].empty?
     end
 
     def to_s

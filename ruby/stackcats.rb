@@ -72,7 +72,7 @@ class StackCats
     def preprocess_source
         # Validate symmetry
         program = @debug_level > 0 ? @program.gsub('"', '') : @program
-        error "Error: program is not symmetric" if program != program.reverse.tr('(){}[]<>\/', ')(}{][></\\')
+        error "Error: program is not symmetric" if program != program.reverse.tr('(){}[]<>\\\\/', ')(}{][></\\\\')
 
         # Pre-parse loops
         @loop_targets = Hash.new
