@@ -3,34 +3,46 @@
 
 require_relative 'stackcats'
 
-def mirror str
+def mirror_right str
     str + str[0..-2].reverse.tr('(){}[]<>\\\\/', ')(}{][></\\\\')
+end
+
+def mirror_left str
+    str[1..-1].reverse.tr('(){}[]<>\\\\/', ')(}{][></\\\\') + str
 end
 
 debug_level = 0
 mirrored = false
 print_mirrored = false
+mirror_r = true
 num_input = num_output = false
 
-while ARGV[0][0] == '-'
-    debug_level = 1 if ARGV[0][/d/]
-    debug_level = 2 if ARGV[0][/D/]
-    mirrored = true if ARGV[0][/m/]
-    print_mirrored = true if ARGV[0][/M/]
-    num_input = num_output = true if ARGV[0][/n/]
-    num_input = true if ARGV[0][/i/]
-    num_output = true if ARGV[0][/o/]
+ARGV.select!{|arg|
+    if arg[0] == '-'
+        debug_level = 1 if arg[/d/]
+        debug_level = 2 if arg[/D/]
+        mirrored = true if arg[/m|l/]
+        print_mirrored = true if arg[/M|L/]
+        mirror_r = false if arg[/l/i]
+        num_input = num_output = true if arg[/n/]
+        num_input = true if arg[/i/]
+        num_output = true if arg[/o/]
 
-    ARGV.shift
-end
+        false
+    else
+        true
+    end
+}
 
 source = ARGF.read
 
 if print_mirrored
-    puts mirror source
+    puts (mirror_r ? mirror_right(source) : mirror_left(source))
     exit
 end
 
-source = mirror source if mirrored
+if mirrored
+    source = mirror_r ? mirror_right(source) : mirror_left(source)
+end
 
 StackCats.run(source, num_input, num_output, debug_level)
