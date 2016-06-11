@@ -8,10 +8,14 @@ Every program in Stack Cats is written on a single line, where each character is
 
 ## Syntax
 
-There are only two syntactic rules for Stack Cats:
+As stated above, Stack Cats programs are written on a single line. However, source files may contain additional lines for comments or command-line instructions. Everything starting at the first newline is ignored by the interpreter.
+
+Beyond that there are only two syntactic rules for Stack Cats:
 
 1. Every valid program must have mirror symmetry. That is, if the entire program is mirrored (see above), it must remain unchanged. This has a few implications. a) Every Stack Cats program computes an involution on the global memory state (since every program is its own inverse). b) Every even-length program computes the identity (i.e. a [cat program](http://esolangs.org/wiki/Cat_program)) provided that it terminates, since the second half undoes the first. c) Every non-trivial program has odd length. If we call the command in the centre of the program `A`, then every such program has the structure `pAq`, where `p` is an arbitrary program and `q` computes its inverse. Note that `A` needs to be one of the self-symmetric characters, so it is itself an involution. Hence, programming in Stack Cats is about finding a function `p` which transforms a very simple involution `A` into the desired program.
 2. Parentheses, `()`, and braces, `{}`, need to be balanced correctly, as they form loops. They can be nested arbitrarily but not interleaved like `({)}`. (`[]` and `<>` can appear individually and don't need be matched.)
+
+Note that using unknown characters (i.e. any which don't correspond to a command) will result in an error at the start of the program.
 
 ## Memory model
 
