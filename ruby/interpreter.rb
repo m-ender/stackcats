@@ -34,7 +34,7 @@ ARGV.select!{|arg|
     end
 }
 
-source = ARGF.read.lines[0].chomp
+source = ARGF.readline.chomp
 
 if print_mirrored
     puts (mirror_r ? mirror_right(source) : mirror_left(source))
