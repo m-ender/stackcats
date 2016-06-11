@@ -311,7 +311,6 @@ class StackCats
     end
 
     def error msg
-        $stderr.puts msg + " | " + msg.reverse
-        exit     
+        raise msg + " | " + msg.reverse
     end
 end

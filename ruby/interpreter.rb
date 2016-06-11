@@ -45,4 +45,8 @@ if mirrored
     source = mirror_r ? mirror_right(source) : mirror_left(source)
 end
 
-StackCats.run(source, num_input, num_output, debug_level)
+begin
+    StackCats.run(source, num_input, num_output, debug_level)
+rescue => e
+    $stderr.puts e.message
+end
