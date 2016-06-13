@@ -1,6 +1,5 @@
 import argparse
 from collections import defaultdict, deque
-from enum import Enum
 import re
 import sys
 
@@ -94,7 +93,7 @@ class Tape():
         self.swap_stacks(self.stack_num-1, self.stack_num)
 
     def swap_right(self):
-        self.swap_stacks(self.stack_num-1, self.stack_num)
+        self.swap_stacks(self.stack_num+1, self.stack_num)
 
     def __len__(self):
         return len(self.curr_stack)
@@ -123,49 +122,48 @@ class Tape():
         for i in range(max_depth+3):
             rows[i].append("..." if i == max_depth else "   ")
 
-        return '\n'.join(' '.join(row).rstrip() for row in rows)           
-
-
-class DebugFlags(Enum):
-    # Flags correspond to specific bits, and so are multiples of 2.
-    PRINT_AT_QUOTES = 1
-    PRINT_EVERY_TICK = 2
+        return '\n'.join(' '.join(row).rstrip() for row in rows)
 
 
 class StackCats():
-    def __init__(self, code, debug=0, mirrored=False, print_mirrored=False):
-        # Check code validity
-        pairs = "([{<\/>}])"
-        pair_dict = dict(zip(pairs, pairs[::-1]))
+    def __init__(self, code, debug_level=0, mirror_left=False, mirror_right=False,
+          print_mirrored=False):
+        if mirror_right:
+            code = code + self.__mirror(code[:-1])
+        elif mirror_left:
+            code = self.__mirror(code[1:]) + code
 
-        if mirrored or print_mirrored:
-            code = code + ''.join(pair_dict.get(c, c) for c in code[:-1][::-1])
+        # Code potentially minus debug chars if debug options are set.
+        program = code
+        self.debug_level = debug_level
+
+        if debug_level > 0:
+            program = program.replace('"', '')
+
+        if program != self.__mirror(program):
+            self.error(InvalidCodeException, "program is not symmetric")
 
         self.code = code
-        self.debug = debug
-
-        for i in range(len(code)//2):
-            char = self.code[i]
-            if pair_dict.get(char, char) != self.code[~i]:
-                raise InvalidCodeException("Code must be convenient palindromic")
-
-        if len(code) % 2 == 1 and self.code[len(code)//2] in pairs:
-            raise InvalidCodeException("Centre char cannot be part of a char pair.")
-
         self.loop_targets = {}
         index_stack = []
 
         for i,c in enumerate(code):
+            if c not in "(){}-!*_^:+=|T<>[]I/\\X" and (c != '"' or self.debug_level == 0):
+                self.error(InvalidCodeException, 'invalid character in source code, {}'.format(c))
+
             if c in "{(":
                 index_stack.append((i, c))
 
             elif c in "})":
-                if not index_stack or c != pair_dict[index_stack[-1][1]]:
-                    raise InvalidCodeException("Mismatched loop brackets")
+                if not index_stack or c != self.__mirror(index_stack[-1][1]):
+                    self.error(InvalidCodeException, "unmatched {}".format(c))
 
                 start, _ = index_stack.pop()
                 self.loop_targets[start] = i
                 self.loop_targets[i] = start
+
+        if index_stack:
+            self.error(InvalidCodeException, "unmatched {}".format(index_stack[-1][1]))
 
         if print_mirrored:
             print(code, end='')
@@ -187,20 +185,20 @@ class StackCats():
         self.loop_conditions = []       
         self.ip = 0
         self.tick = 0
+        self.output = []
 
         while self.ip < len(self.code):
-            if self.debug & DebugFlags.PRINT_EVERY_TICK.value:
+            if self.debug_level >= 2:
                 self.print_debug()
             
             self.interpret(self.code[self.ip])
             self.ip += 1
             self.tick += 1
 
-            if max_ticks is not None and self.tick == max_ticks:
-                print("Program timed out", file=sys.stderr)
-                return
+            if max_ticks is not None and self.tick >= max_ticks:
+                self.error(TimeoutError, "program timed out")
 
-        if self.debug & DebugFlags.PRINT_EVERY_TICK.value:
+        if self.debug_level >= 2:
             self.print_debug()
 
         # Output, ignoring any -1s at bottom.
@@ -209,14 +207,18 @@ class StackCats():
 
             if value != -1 or self.tape:
                 if numeric_output:
-                    print(value)
+                    self.output.extend([str(value), '\n'])
                 else:
-                    print(chr(value % 256), end='')
+                    self.output.append(chr(value % 256))
+
+        self.output = ''.join(self.output)
+        return self.output
 
 
     def interpret(self, instruction):
         self.execute_inst(instruction)
         self.tape.swallow_zeroes()
+
 
     def execute_inst(self, instruction):
         # Symmetric pairs
@@ -322,7 +324,7 @@ class StackCats():
 
             if value < 0:
                 self.tape.move_left()
-            else:
+            elif value > 0:
                 self.tape.move_right()
 
             self.tape.push(-value)
@@ -331,7 +333,7 @@ class StackCats():
             if self.tape.peek() != 0:
                 self.tape.reverse()
 
-        elif instruction == '"' and self.debug & DebugFlags.PRINT_AT_QUOTES.value:
+        elif instruction == '"' and self.debug_level >= 1:
             self.print_debug()
 
     def print_debug(self):
@@ -343,6 +345,15 @@ class StackCats():
         print(self.code, file=sys.stderr)
         print('^'.rjust(self.ip+1), file=sys.stderr)
 
+    def error(self, exception, message):
+        # Note: the error messages could mirror brackets as well, but that could get confusing.
+        message = "Error: " + message
+        raise exception(message + " | " + message[::-1])
+
+    def __mirror(self, string):
+        mirror_chars = dict(zip("(){}[]<>\\/", ")(}{][></\\"))
+        return ''.join(mirror_chars.get(c, c) for c in string[::-1])
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -350,13 +361,20 @@ if __name__ == '__main__':
         " in code", action="store_true")
     parser.add_argument('-D', dest="debug2", help="debug level 2: print debug info at every tick",
         action="store_true")
-    parser.add_argument('-m', dest="mirrored", help="expand source with last char at centre before"
+    parser.add_argument('-l', dest="mirrored_left", help="expand source with first char at centre before"
         "executing", action="store_true")
-    parser.add_argument('-M', dest="print_mirrored", help="prints source code mirorred",
+    parser.add_argument('-L', dest="print_mirrored_left", help="prints source code mirorred left",
+        action="store_true")
+    parser.add_argument('-m', dest="mirrored_right", help="expand source with last char at centre before"
+        "executing", action="store_true")
+    parser.add_argument('-M', dest="print_mirrored_right", help="prints source code mirorred right",
         action="store_true")
     parser.add_argument('-i', dest="numeric_input", help="use numeric input", action="store_true")
     parser.add_argument('-o', dest="numeric_output", help="use numeric output", action="store_true")
-    parser.add_argument('-n', dest="numeric", help="use numeric input and output", action="store_true")
+    parser.add_argument('-n', dest="numeric", help="use numeric input and output",
+        action="store_true")
+    parser.add_argument('-t', dest="max_ticks", help="maximum number of ticks the program will try"
+        " to run for", type=int)
     parser.add_argument("program_path", help="path to file containing program", type=str)
 
     # Open code file.
@@ -368,18 +386,31 @@ if __name__ == '__main__':
     # Read input from STDIN.
     input_ = ''.join(sys.stdin.readlines())
 
-    # Check flags.
-    debug_level = 0
-
+    # Debug flags.
     if args.debug1:
-        debug_level |= 1
-    if args.debug2:
-        debug_level |= 2
+        debug_level = 1
+    elif args.debug2:
+        debug_level = 2
+    else:
+        debug_level = 0
+
+    # Mirroring
+    mirror_left = args.mirrored_left or args.print_mirrored_left
+    mirror_right = args.mirrored_right or args.print_mirrored_right
+    print_mirrored = args.print_mirrored_left or args.print_mirrored_right
+
+    # Numeric I/O
+    numeric_input = args.numeric or args.numeric_input
+    numeric_output = args.numeric or args.numeric_output
     
     try:
-        interpreter = StackCats(code, debug_level, args.mirrored, args.print_mirrored)
+        interpreter = StackCats(code, debug_level, mirror_left, mirror_right, print_mirrored)
     except InvalidCodeException as e:
         exit(e)
 
-    if not args.print_mirrored:
-        interpreter.run(input_, args.numeric or args.numeric_input, args.numeric or args.numeric_output)
+    if not print_mirrored:
+        try:
+            output = interpreter.run(input_, numeric_input, numeric_output, args.max_ticks)
+            print(output, end='')
+        except TimeoutError as e:
+            exit(e)
