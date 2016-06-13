@@ -414,3 +414,5 @@ if __name__ == '__main__':
             print(output, end='')
         except TimeoutError as e:
             exit(e)
+        except KeyboardInterrupt as e:
+            exit("^C")
