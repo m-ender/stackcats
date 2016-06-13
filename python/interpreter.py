@@ -89,6 +89,8 @@ class Tape():
         if num2 in self.stacks and not self.stacks[num2]:
             del self.stacks[num2]
 
+        self.curr_stack = self.stacks[self.stack_num]
+
     def swap_left(self):
         self.swap_stacks(self.stack_num-1, self.stack_num)
 
