@@ -128,6 +128,8 @@ class Tape():
 class StackCats():
     def __init__(self, code, debug_level=0, mirror_left=False, mirror_right=False,
           print_mirrored=False):
+        code = code.splitlines()[0]
+
         if mirror_right:
             code = code + self.__mirror(code[:-1])
         elif mirror_left:
