@@ -1,0 +1,10 @@
+^:]<_I_>[:^
+
+0110 - XOR / NOT EQUALS
+=======================
+
+The above is the only length 11 solution.
+
+^ performs a XOR and :]< removes Q from the input stack. _ results in -1-(P^Q), and I_ moves
+this negative value leftward. >[: then moves the -1 from the input stack and puts it under the
+-1-(P^Q), and the ^ fixes the top of the stack back to P^Q.

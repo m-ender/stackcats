@@ -1,0 +1,23 @@
+|I|^:!:^|I|
+
+1101 - Q IMPLY P / NOT P OR Q
+=============================
+
+|I|^:!:^|I|
+|IT^:!:^TI|
+
+Both of these work similarly, so we'll use the first for explaining.
+
+In the (P, Q) = (1, 0) case, the first I moves P off to the right, turning it into -1. The :!:^
+then puts a -1 beneath this and XORs, making the stack [-1 0]. The rest of program then does
+nothing, and 0 is output.
+
+If P = 0, then |I| does nothing. ^:!:^ transforms the input stack from [-1 P 0] to
+
+  [-1 P 0] -> [-1 P P] -> [-1 P ~P] -> [-1 ~P P] -> [-1 ~P -1]
+  
+and |I| pulls the -1 at the base, pushing it left whilst turning it into a 1.
+
+In the (P, Q) = (1, 1) case, the initial | actually reverses, pulling the base -1 to the top. I
+pushes this leftward, turning it into a 1, and |^ does nothing. :!:^| essentially creates a -1,
+which is once again moved leftward by I, turning it into the 1 which gets output.

@@ -1,0 +1,18 @@
+[>I=I_I=I<]
+
+0001 - AND
+==========
+
+[>I=I_I=I<]
+[>IXI_IXI<]
+]<I=I_I=I>[
+]<IXI_IXI>[
+
+All of these work similarly, so we'll use the first one for explaining.
+
+[> moves P one stack left, and I=I either removes the -1 at the bottom of the input stack if Q = 1,
+or moves P to the stack on the other side of the input stack if Q = 0.
+
+Regardless of what just happened, the next _ turns Q into -1, since either -1-0 or 0-1 occurs. I=I
+happens again, this time to empty the input stack if the -1's still there, and <] puts P on top if
+it wasn't moved previously, otherwise 0.
