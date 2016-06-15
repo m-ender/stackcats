@@ -6,11 +6,13 @@
 :!:[X]:!:
 :!:]X[:!:
 
-For both of these, the initial :!: is irrelevant, the middle chars get P onto a new stack, and the final :!: put a -1 under P.
+For both of these, the initial :!: is irrelevant, the middle chars get P onto a new stack, and the
+final :!: put a -1 under P.
 
 +I=I:I=I+
 
-The initial +I=I: removes Q and moves P and -1, leaving the stack to the right of the input stack at the state [P -1 0]. The next I=I does nothing useful, and finally the last + pulls P to the top.
+The initial +I=I: removes Q and moves P and -1, leaving the stack to the right of the input stack
+at the state [P -1 0]. The next I=I does nothing useful, and finally the last + pulls P to the top.
 
 [<!>X<!>]
 [>!<X>!<]
@@ -19,4 +21,5 @@ The initial +I=I: removes Q and moves P and -1, leaving the stack to the right o
 ]<!>X<!>[
 ]>!<X>!<[
 
-These all move P off the top and form a -1 on a new stack. The centre X then switches this new stack with the input stack, and the second half puts P on top of it.
+These all move P off the top and form a -1 on a new stack. The centre X then switches this new
+stack with the input stack, and the second half puts P on top of it.
