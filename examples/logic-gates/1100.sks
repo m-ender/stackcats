@@ -1,0 +1,18 @@
+I^:!:^I
+
+1100 - NOT P
+============
+
+The above is the only length 7 solution.
+
+In the (0, Q) case, the initial I does nothing. ^:!:^ then results in
+
+  [-1 Q 0] -> [-1 Q Q] -> [-1 Q Q] -> [-1 Q ~Q] -> [-1 ~Q Q] -> [-1 ~Q -1]
+
+and the final I pushes the -1 to the left, turning it into a 1.
+
+In the (1, Q) case, the inital I moves P = 1 to the right, turning it into -1. Then we get:
+
+  [0 -1] -> [0 -1] -> [-1 0] -> [-1 -1] -> [-1 -1] -> [-1 0]
+
+and the final I does nothing.

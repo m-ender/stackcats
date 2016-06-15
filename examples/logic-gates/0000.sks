@@ -1,0 +1,20 @@
+:!<X>!:
+
+0000 - FALSE
+============
+
+:!<X>!:
+:!>X<!:
+
+These two use X to ignore the input, with the ! being necessary to put a -1 beneath the zero
+output.
+
++-I:I-+
++I-:-I+
+
+These two make use of the -1 at the bottom of the input stack.
+
+<I!+!I>
+
+This one creates a -1 in a separate stack, uses + to pull two zeroes on top of the -1 then
+moves one of those zeroes away.

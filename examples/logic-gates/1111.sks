@@ -1,0 +1,13 @@
+*<X>*
+
+1111 - TRUE
+===========
+
+*<X>*
+*>X<*
+
+These two simply use X to ignore the input, and * to create the 1.
+
++I+I+
+
+This one manipulates the -1 at the bottom of the input stack to create the 1.
