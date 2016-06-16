@@ -102,9 +102,9 @@ It supports the following options:
 
 Options can be combined like `-imd`.
 
-### Python
+### Python 3
 
-The Python interpreter can be run like the Ruby interpreter:
+The Python 3 interpreter can be run like the Ruby interpreter:
 
     python3 ./interpreter.py [options] ./program.sks
 
