@@ -366,11 +366,11 @@ if __name__ == '__main__':
     parser.add_argument('-D', dest="debug2", help="debug level 2: print debug info at every tick",
         action="store_true")
     parser.add_argument('-l', dest="mirrored_left", help="expand source with first char at centre before"
-        "executing", action="store_true")
+        " executing", action="store_true")
     parser.add_argument('-L', dest="print_mirrored_left", help="prints source code mirorred left",
         action="store_true")
     parser.add_argument('-m', dest="mirrored_right", help="expand source with last char at centre before"
-        "executing", action="store_true")
+        " executing", action="store_true")
     parser.add_argument('-M', dest="print_mirrored_right", help="prints source code mirorred right",
         action="store_true")
     parser.add_argument('-i', dest="numeric_input", help="use numeric input", action="store_true")
