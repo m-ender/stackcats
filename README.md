@@ -83,10 +83,6 @@ In summary, `()` is a loop which is entered and left only when the top is positi
 
 This repository contains two reference implementations, one in Python and one in Ruby.
 
-### Python
-
-*work in progress*
-
 ### Ruby
 
 The Ruby interpreter can be run as follows:
@@ -105,3 +101,14 @@ It supports the following options:
 - `-D` debug level 2: print debug information after every command.
 
 Options can be combined like `-imd`.
+
+### Python
+
+The Python interpreter can be run like the Ruby interpreter:
+
+    python3 ./interpreter.py [options] ./program.sks
+
+It has all the options of the Ruby interpreter, plus two extras:
+
+- `-h` display options.
+- `-t MAX_TICKS` run the program for at most `MAX_TICKS` ticks, erroring on timeout.
